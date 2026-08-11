@@ -79,9 +79,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="text-xs text-indigo-400">
-          &copy; 2026 Team Task Manager. All rights reserved.
-        </div>
       </div>
 
       {/* Form Side */}
