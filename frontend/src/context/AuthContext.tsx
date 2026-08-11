@@ -3,6 +3,23 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 
+if (typeof window !== 'undefined' && !window.hasOwnProperty('__originalFetch')) {
+  const originalFetch = window.fetch;
+  (window as any).__originalFetch = originalFetch;
+  window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      init = init || {};
+      const headers = new Headers(init.headers || {});
+      if (!headers.has('Authorization')) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+      init.headers = headers;
+    }
+    return originalFetch(input, init);
+  };
+}
+
 export interface User {
   id: string;
   name: string;
@@ -78,6 +95,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error(data.error || 'Login failed');
     }
 
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+    }
     setUser(data.user);
     router.push('/dashboard');
   };
@@ -92,6 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.error('Logout request failed:', err);
     } finally {
+      localStorage.removeItem('token');
       setUser(null);
       router.push('/login');
     }
