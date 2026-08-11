@@ -145,7 +145,7 @@ export default function Sidebar() {
       </aside>
 
       {/* Desktop Sidebar (normal view) */}
-      <aside className="hidden md:flex w-64 bg-slate-900 text-slate-300 flex-col justify-between border-r border-slate-800 min-h-screen shrink-0">
+      <aside className="hidden md:flex w-64 bg-slate-900 text-slate-300 flex-col justify-between border-r border-slate-800 h-screen sticky top-0 shrink-0">
         <div>
           <div className="p-6 border-b border-slate-800 flex items-center gap-3">
             <Shield className="h-6 w-6 text-indigo-400" />
