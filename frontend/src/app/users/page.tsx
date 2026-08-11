@@ -99,9 +99,9 @@ export default function UsersPage() {
   // Double check authorization
   if (!user || user.role !== 'ADMIN') {
     return (
-      <div className="flex min-h-screen bg-slate-50">
+      <div className="flex flex-col md:flex-row min-h-screen bg-slate-50">
         <Sidebar />
-        <main className="flex-1 p-8 flex items-center justify-center">
+        <main className="flex-1 p-6 flex items-center justify-center">
           <div className="bg-white p-8 rounded-xl border border-red-200 text-center max-w-md shadow-sm">
             <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-lg font-bold text-slate-800 mb-2">Access Denied</h2>
@@ -128,10 +128,10 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex flex-col md:flex-row min-h-screen bg-slate-50">
       <Sidebar />
 
-      <main className="flex-1 p-8 md:p-12 overflow-y-auto">
+      <main className="flex-1 p-6 md:p-12 overflow-y-auto">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="mb-8">
