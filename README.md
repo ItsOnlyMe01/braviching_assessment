@@ -1,118 +1,62 @@
-# Full-Stack Developer Assessment: Team Task Manager with RBAC
+# Team Task Manager with RBAC
 
-**Candidate:** Ritesh  
-**Assessment Title:** Full-Stack Developer Assessment – Build a Role-Based Access Control (RBAC) Application
-
----
-
-## Project Overview
-This is a **Team Task Manager** application designed to demonstrate the implementation of Role-Based Access Control (RBAC). 
-
-The system allows team members to create, edit, view, and organize tasks based on their specific company roles:
-*   **Admin**: Full system access. Can manage (create/list) users, create/edit/delete tasks, and assign tasks to anyone.
-*   **Manager**: Can view all tasks, create tasks, edit tasks, and assign them to employees. Cannot delete tasks or access user management.
-*   **Employee**: Can only view tasks assigned to them and update their status (TODO, IN_PROGRESS, DONE). All other fields are read-only.
-
----
-
-## Technology Stack
-*   **Frontend**: Next.js 14 (App Router), React, Tailwind CSS, Lucide Icons.
-*   **Backend**: Node.js, Express, TypeScript.
-*   **Database**: MongoDB Atlas (NoSQL) with Mongoose ORM.
-*   **Authentication & Validation**: JSON Web Tokens (JWT), bcrypt for password hashing, and Zod for request body validation.
-
----
-
-## Default Test Credentials
-Use the pre-configured buttons on the login screen or enter these credentials manually to test the roles:
-
-| Role | Email | Password | Permissions |
-| :--- | :--- | :--- | :--- |
-| **Admin** | `admin@taskmanager.local` | `password123` | Full access, user management, deletes tasks |
-| **Manager** | `manager@taskmanager.local` | `password123` | Create, update, and assign tasks. No delete/users access. |
-| **Employee 1** | `employee@taskmanager.local` | `password123` | View own tasks, update status only |
-| **Employee 2** | `employee2@taskmanager.local` | `password123` | View own tasks, update status only |
-
----
+A simple full-stack task management application demonstrating Role-Based Access Control (RBAC) with three distinct roles (Admin, Manager, Employee).
 
 ## Deployment Links
-*   **Frontend (Vercel)**: `https://braviching-assessment.vercel.app`
-*   **Backend (Render)**: `https://braviching-assessment.onrender.com`
+*   **Frontend**: https://braviching-assessment.vercel.app
+*   **Backend**: https://braviching-assessment.onrender.com
 
----
+## Technology Stack
+*   **Frontend**: Next.js 14, Tailwind CSS
+*   **Backend**: Node.js, Express, TypeScript
+*   **Database**: MongoDB Atlas (Mongoose ORM)
+*   **Auth & Validation**: JWT, bcrypt, Zod
 
-## Assumptions and Design Decisions
+## Default Test Credentials
+*   **Admin**: `admin@taskmanager.local` / `password123`
+*   **Manager**: `manager@taskmanager.local` / `password123`
+*   **Employee 1**: `employee@taskmanager.local` / `password123`
+*   **Employee 2**: `employee2@taskmanager.local` / `password123`
 
-1.  **Strict Backend Security**: The frontend shows or hides buttons and inputs for UX convenience, but all authorization and role restrictions are strictly checked and enforced on the Node.js backend using custom middlewares (`authenticate` and `authorize`).
-2.  **Hybrid Token Authentication**: Standard HTTP-only cookies are used for security. However, to handle modern browsers (Safari, Brave, and Incognito Chrome) that block third-party cross-site cookies by default, the app implements a localStorage header fallback. On login, the JWT is returned in the response body, saved in localStorage, and automatically attached as an `Authorization: Bearer <token>` header to all API requests.
-3.  **Task Resource Ownership**: For safety, the GET single task details and PUT task updates endpoints verify resource ownership. An Employee trying to view or edit a task not assigned to them will be blocked by the backend with a `403 Forbidden` response.
-4.  **Database Seeding**: A local database seeder script was created to quickly reset and populate the MongoDB database with standard test credentials.
+## Setup and Installation
 
----
-
-## Setup and Installation Instructions
-
-### Prerequisites
-*   Node.js (v18+)
-*   A running MongoDB instance (local or Atlas)
-
-### Local Development
-
-#### 1. Backend Setup
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Create your `.env` file based on the environment configurations:
+### 1. Backend Setup
+1. Go to the `backend` folder and create a `.env` file:
    ```text
    PORT=5000
-   MONGODB_URI=mongodb+srv://... (your MongoDB URL)
+   MONGODB_URI=mongodb+srv://... (your MongoDB Atlas URL)
    JWT_SECRET=supersecretkey
    FRONTEND_URL=http://localhost:3000
    NODE_ENV=development
    ```
-3. Run the database seed script to populate test data:
+2. Install dependencies and seed the database:
    ```bash
+   npm install
    npm run seed
    ```
-4. Start the Express server:
+3. Start the server:
    ```bash
    npm run dev
    ```
 
-#### 2. Frontend Setup
-1. Navigate to the frontend directory:
-   ```bash
-   cd ../frontend
-   ```
-2. Create your `.env` file:
+### 2. Frontend Setup
+1. Go to the `frontend` folder and create a `.env` file:
    ```text
    NEXT_PUBLIC_API_URL=http://localhost:5000
    ```
-3. Start the Next.js app:
+2. Install dependencies and run:
    ```bash
+   npm install
    npm run dev
    ```
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
----
+## Docker Setup (Optional)
+Run both services together locally:
+```bash
+docker compose up --build
+```
+*(Requires a root `.env` file configured with the same variables).*
 
-## Docker Setup (Bonus)
-
-To run the complete application inside Docker:
-
-1.  Create a `.env` file in the **root** folder containing:
-    ```text
-    MONGODB_URI=mongodb+srv://... (your Atlas connection URL)
-    JWT_SECRET=supersecretkey
-    FRONTEND_URL=http://localhost:3000
-    NEXT_PUBLIC_API_URL=http://localhost:5000
-    ```
-2.  Start the containers:
-    ```bash
-    docker compose up --build
-    ```
-3.  Stop the containers:
-    ```bash
-    docker compose down
-    ```
+## Assumptions & Design Decisions
+*   **Backend Security**: Role checks and task ownership are strictly checked on the backend using Express middleware.
+*   **Auth Fallback**: JWT tokens are sent via cookies, with a localStorage header fallback to handle browsers that block third-party cookies by default.
