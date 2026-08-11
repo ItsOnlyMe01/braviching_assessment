@@ -1,112 +1,118 @@
-# Team Task Manager with RBAC
+# Full-Stack Developer Assessment: Team Task Manager with RBAC
 
-A clean, minimal, and secure Team Task Management application implementing Role-Based Access Control (RBAC).
-
-## Architecture
-
-This application consists of two main components:
-1. **Backend**: A Node.js + Express API server (`/backend`) connecting to MongoDB using Mongoose. Authentication is managed using JSON Web Tokens (JWT) stored in secure, HTTP-only cookies. Authorizations (RBAC) are verified on the backend using express middleware. Incoming requests are validated using Zod.
-2. **Frontend**: A Next.js App Router application (`/frontend`) styled with Tailwind CSS. Navigation elements, status operations, and administrative pages render conditionally according to the user's role.
+**Candidate:** Ritesh  
+**Assessment Title:** Full-Stack Developer Assessment – Build a Role-Based Access Control (RBAC) Application
 
 ---
 
-## Role-Based Access Control (RBAC) Matrix
+## Project Overview
+This is a **Team Task Manager** application designed to demonstrate the implementation of Role-Based Access Control (RBAC). 
 
-| Permission / Action | ADMIN | MANAGER | EMPLOYEE |
-| :--- | :---: | :---: | :---: |
-| **User Management (Create/Read Users)** | Yes | No | No |
-| **Create Tasks** | Yes | Yes | No |
-| **Assign Tasks** | Yes | Yes | No |
-| **View All Tasks** | Yes | Yes | Only assigned to self |
-| **Edit All Task Fields** | Yes | Yes | No |
-| **Update Assigned Task Status** | Yes | Yes | Yes |
-| **Delete Tasks** | Yes | No | No |
+The system allows team members to create, edit, view, and organize tasks based on their specific company roles:
+*   **Admin**: Full system access. Can manage (create/list) users, create/edit/delete tasks, and assign tasks to anyone.
+*   **Manager**: Can view all tasks, create tasks, edit tasks, and assign them to employees. Cannot delete tasks or access user management.
+*   **Employee**: Can only view tasks assigned to them and update their status (TODO, IN_PROGRESS, DONE). All other fields are read-only.
 
 ---
 
-## Test Credentials
-
-For quick local testing and evaluation, use the following pre-configured credentials (seeded via the development seed script):
-
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| **ADMIN** | `admin@taskmanager.local` | `password123` |
-| **MANAGER** | `manager@taskmanager.local` | `password123` |
-| **EMPLOYEE (Assignee 1)** | `employee@taskmanager.local` | `password123` |
-| **EMPLOYEE (Assignee 2)** | `employee2@taskmanager.local` | `password123` |
+## Technology Stack
+*   **Frontend**: Next.js 14 (App Router), React, Tailwind CSS, Lucide Icons.
+*   **Backend**: Node.js, Express, TypeScript.
+*   **Database**: MongoDB Atlas (NoSQL) with Mongoose ORM.
+*   **Authentication & Validation**: JSON Web Tokens (JWT), bcrypt for password hashing, and Zod for request body validation.
 
 ---
 
-## Local Setup & Development
+## Default Test Credentials
+Use the pre-configured buttons on the login screen or enter these credentials manually to test the roles:
+
+| Role | Email | Password | Permissions |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin@taskmanager.local` | `password123` | Full access, user management, deletes tasks |
+| **Manager** | `manager@taskmanager.local` | `password123` | Create, update, and assign tasks. No delete/users access. |
+| **Employee 1** | `employee@taskmanager.local` | `password123` | View own tasks, update status only |
+| **Employee 2** | `employee2@taskmanager.local` | `password123` | View own tasks, update status only |
+
+---
+
+## Deployment Links
+*   **Frontend (Vercel)**: `https://braviching-assessment.vercel.app`
+*   **Backend (Render)**: `https://braviching-assessment.onrender.com`
+
+---
+
+## Assumptions and Design Decisions
+
+1.  **Strict Backend Security**: The frontend shows or hides buttons and inputs for UX convenience, but all authorization and role restrictions are strictly checked and enforced on the Node.js backend using custom middlewares (`authenticate` and `authorize`).
+2.  **Hybrid Token Authentication**: Standard HTTP-only cookies are used for security. However, to handle modern browsers (Safari, Brave, and Incognito Chrome) that block third-party cross-site cookies by default, the app implements a localStorage header fallback. On login, the JWT is returned in the response body, saved in localStorage, and automatically attached as an `Authorization: Bearer <token>` header to all API requests.
+3.  **Task Resource Ownership**: For safety, the GET single task details and PUT task updates endpoints verify resource ownership. An Employee trying to view or edit a task not assigned to them will be blocked by the backend with a `403 Forbidden` response.
+4.  **Database Seeding**: A local database seeder script was created to quickly reset and populate the MongoDB database with standard test credentials.
+
+---
+
+## Setup and Installation Instructions
 
 ### Prerequisites
+*   Node.js (v18+)
+*   A running MongoDB instance (local or Atlas)
 
-- [Node.js](https://nodejs.org/) (v18 or above recommended)
-- A running MongoDB instance (either local or a MongoDB Atlas connection string)
+### Local Development
 
-### Running Locally (Without Docker)
-
-#### 1. Backend Configuration & Running
-1. Navigate to the backend folder:
+#### 1. Backend Setup
+1. Navigate to the backend directory:
    ```bash
    cd backend
    ```
-2. Set up your environment variables by copying `.env.example`:
-   ```bash
-   cp .env.example .env
+2. Create your `.env` file based on the environment configurations:
+   ```text
+   PORT=5000
+   MONGODB_URI=mongodb+srv://... (your MongoDB URL)
+   JWT_SECRET=supersecretkey
+   FRONTEND_URL=http://localhost:3000
+   NODE_ENV=development
    ```
-3. Run the seed script to populate test users and sample tasks:
+3. Run the database seed script to populate test data:
    ```bash
    npm run seed
    ```
-4. Start the backend in development mode:
+4. Start the Express server:
    ```bash
    npm run dev
    ```
 
-#### 2. Frontend Configuration & Running
-1. Navigate to the frontend folder:
+#### 2. Frontend Setup
+1. Navigate to the frontend directory:
    ```bash
    cd ../frontend
    ```
-2. Set up environment variables:
-   ```bash
-   cp .env.example .env
+2. Create your `.env` file:
+   ```text
+   NEXT_PUBLIC_API_URL=http://localhost:5000
    ```
-3. Start the frontend in development mode:
+3. Start the Next.js app:
    ```bash
    npm run dev
    ```
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## Running with Docker Compose
+## Docker Setup (Bonus)
 
-This project includes multi-stage Docker builds and a Compose configuration to package and run the frontend and backend locally together.
+To run the complete application inside Docker:
 
-### Prerequisites
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Docker Engine with Docker Compose installed.
-
-### Configuration
-
-Create a `.env` file in the **root** folder (next to `docker-compose.yml`) containing the required variables:
-```text
-MONGODB_URI=mongodb+srv://... (your MongoDB Atlas connection string)
-JWT_SECRET=supersecretkeyreplaceinproduction
-FRONTEND_URL=http://localhost:3000
-NEXT_PUBLIC_API_URL=http://localhost:5000
-```
-
-### Commands
-
-1. **Build and start the containers**:
-   ```bash
-   docker compose up --build
-   ```
-   *The backend will run on port `5000` and the frontend will run on port `3000`.*
-
-2. **Stop the containers**:
-   ```bash
-   docker compose down
-   ```
+1.  Create a `.env` file in the **root** folder containing:
+    ```text
+    MONGODB_URI=mongodb+srv://... (your Atlas connection URL)
+    JWT_SECRET=supersecretkey
+    FRONTEND_URL=http://localhost:3000
+    NEXT_PUBLIC_API_URL=http://localhost:5000
+    ```
+2.  Start the containers:
+    ```bash
+    docker compose up --build
+    ```
+3.  Stop the containers:
+    ```bash
+    docker compose down
+    ```
